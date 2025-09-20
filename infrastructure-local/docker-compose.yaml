@@ -1,0 +1,64 @@
+version: "3.5"
+
+services:
+  storage:
+    image: quay.io/minio/minio
+    command: server /data --console-address :9090
+    restart: always
+    environment:
+      MINIO_ROOT_USER: "admin"
+      MINIO_ROOT_PASSWORD: "12345678"
+    ports:
+      - "9000:9000"
+      - "9090:9090"
+    volumes:
+      - minio-storage:/data
+
+  cache:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    volumes:
+      - cache:/data
+
+  postgress:
+    image: postgres:13.1
+    restart: always
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "postgres" 
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgress-db:/data
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - 3100:3100
+    volumes:
+      - ./loki-config.yml:/etc/loki/loki-config.yaml
+    
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+     - ./promtail/promtail.yaml:/etc/promtail/promtail.yaml
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "12345678"
+
+volumes:
+  postgress-db:
+  cache:
+  minio-storage:
+  grafana-storage:
