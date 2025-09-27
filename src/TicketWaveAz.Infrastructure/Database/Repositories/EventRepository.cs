@@ -35,7 +35,6 @@ namespace TicketWaveAz.Infrastructure.Database.Repositories
             }
             
             return events;
-
         }
 
         public async Task<Event?> GetByIdAsync(Guid id, CancellationToken cancellationToken)

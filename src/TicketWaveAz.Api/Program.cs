@@ -22,9 +22,27 @@ builder.Services
     .AddInfrastructure(builder.Configuration)
     .AddApplication();
 
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        builder =>
+        {
+            builder
+                .WithOrigins("http://localhost:4200")
+                .AllowAnyMethod()
+                .SetIsOriginAllowed(_ => true)
+                .AllowAnyHeader()
+                .AllowCredentials();
+        });
+});
+
+
 var app = builder.Build();
 
 app.UseExceptionHandler();
+
+app.UseCors("AllowAll");
 
 if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Local")
 {

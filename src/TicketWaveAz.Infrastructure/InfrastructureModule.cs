@@ -2,9 +2,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TicketWaveAz.Infrastructure.Settings;
-using TicketWaveAz.Application.Intefaces;
-using TicketWaveAz.Infrastructure.Services;
 using Microsoft.Azure.Cosmos;
+using TicketWaveAz.Domain.Interfaces.Services;
+using TicketWaveAz.Infrastructure.Services;
 
 namespace TicketWaveAz.Infrastructure
 {
@@ -12,15 +12,13 @@ namespace TicketWaveAz.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-
             services.AddSingleton(x => new CosmosClient(connectionString: configuration["CosmosDbConnection"]));
 
+            services.AddMemoryCache();
+
+            services.AddScoped<IPaymentExternalService, PaymentExternalService>();
 
             services.AddStorageService(configuration);
-
-            //services.Configure<JwtSettings>(options => configuration.GetSection("JwtSettings").Bind(options));
-
-            //services.AddScoped<IJwtService, JwtService>();
 
             services.Scan(scan => scan
                 .FromAssemblies(typeof(InfrastructureModule).Assembly)
@@ -34,13 +32,17 @@ namespace TicketWaveAz.Infrastructure
 
         private static void AddStorageService(this IServiceCollection services, IConfiguration configuration)
         {
-            //var storageSection = configuration.GetRequiredSection("StorageSettings")!;
+            var storageSection = configuration.GetRequiredSection("StorageSettings")!;
 
-            //services.Configure<StorageSettings>(options => storageSection.Bind(options));
+            services.Configure<StorageSettings>(options => storageSection.Bind(options));
 
-            //var storageSettings = storageSection.Get<StorageSettings>()!;
+            var storageSettings = storageSection.Get<StorageSettings>()!;
 
-            //services.AddScoped<IStorageService>();
+            var blobClient = new Azure.Storage.Blobs.BlobServiceClient(storageSettings.ConnectionString);
+
+            services.AddScoped<IStorageService, StorageService>();
+
+            services.AddSingleton(blobClient);
         }
     }
 }
