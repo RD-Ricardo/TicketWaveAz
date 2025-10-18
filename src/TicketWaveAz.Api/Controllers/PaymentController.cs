@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Mvc;
 using TicketWaveAz.Application.UseCases.Payment.CreatePayment;
 using TicketWaveAz.Application.UseCases.Payment.GetPayment;
 using TicketWaveAz.Application.UseCases.Payment.ReceivedPayment;
@@ -10,6 +12,15 @@ namespace TicketWaveAz.Api.Controllers
     [Route("api/payments")]
     public class PaymentController : ControllerBase
     {
+        private readonly string _secretKey = "ticketWave/pix";
+
+        private readonly ILogger<PaymentController> _logger;
+
+        public PaymentController(ILogger<PaymentController> logger)
+        {
+            _logger = logger;
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreatePayment(
             [FromBody] CreatePaymentDto request,
@@ -44,17 +55,22 @@ namespace TicketWaveAz.Api.Controllers
 
         [HttpPost("webhook")]
         public async Task<IActionResult> Webhook(
+           [FromQuery] string hmac,
            [FromBody] WebhookEfiDto request,
            [FromServices] IReceivedPaymentUseCase receivedPaymentUseCase, CancellationToken cancellationToken)
         {
-            var result = await receivedPaymentUseCase.ExecuteAsync(request, cancellationToken);
-
-            if (result.Success)
+            if (hmac == _secretKey)
             {
-                return Ok(result.Value);
+                var result = await receivedPaymentUseCase.ExecuteAsync(request, cancellationToken);
+
+                var requestBody = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+
+                _logger.LogInformation("Webhook processado com sucesso: {requestBody}", requestBody);
+
+                return Created("Webhook processado com sucesso.", requestBody);
             }
 
-            return BadRequest(result.Errors);
+            return Ok();
         }
     }
 }
