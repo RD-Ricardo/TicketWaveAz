@@ -54,7 +54,7 @@ namespace TicketWaveAz.Infrastructure.Services
                 {
                     original = valueString
                 },
-                chave = "adc5f943-0344-4d43-a35c-becf943a6a99",
+                chave = "b9de40b7-dddd-4bb8-bb05-d52b607045c3",
                 solicitacaoPagador = "Cobrança dos serviços prestados."
             };
 
