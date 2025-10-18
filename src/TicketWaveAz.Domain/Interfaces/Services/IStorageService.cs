@@ -2,6 +2,7 @@
 {
     public interface IStorageService 
     {
+        Task <string> UploadBytesAsync(string fileName, byte[] fileBytes, CancellationToken cancellationToken = default);
         Task<string> UploadAsync(string fileName,  string base64, CancellationToken cancellationToken = default);
         Task<string> GetSignedUrlAsync(string fileName, TimeSpan expirationName);
     }

@@ -1,4 +1,5 @@
 using TicketWaveAz.Api.Configurations;
+using TicketWaveAz.Api.Consumers;
 using TicketWaveAz.Api.Middlewares;
 using TicketWaveAz.Application;
 using TicketWaveAz.Infrastructure;
@@ -22,6 +23,7 @@ builder.Services
     .AddInfrastructure(builder.Configuration)
     .AddApplication();
 
+builder.Services.AddHostedService<PaymentConfirmedConsumer>();
 
 builder.Services.AddCors(options =>
 {

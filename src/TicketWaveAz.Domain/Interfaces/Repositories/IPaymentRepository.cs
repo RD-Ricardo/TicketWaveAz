@@ -11,5 +11,7 @@ namespace TicketWaveAz.Domain.Interfaces.Repositories
     {
         Task CreateAsync(Entities.Payment payment, CancellationToken cancellationToken);
         Task<Entities.Payment?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+        Task<Entities.Payment?> GetByExternalIdAsync(string externalId, CancellationToken cancellationToken);
+        Task UpdateAsync(Entities.Payment payment, CancellationToken cancellationToken);
     }
 }

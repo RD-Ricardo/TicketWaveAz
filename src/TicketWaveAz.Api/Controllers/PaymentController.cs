@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TicketWaveAz.Application.UseCases.Payment.CreatePayment;
 using TicketWaveAz.Application.UseCases.Payment.GetPayment;
+using TicketWaveAz.Application.UseCases.Payment.ReceivedPayment;
+using TicketWaveAz.Shared.Dtos.PaymentExternal;
 
 namespace TicketWaveAz.Api.Controllers
 {
@@ -30,6 +32,22 @@ namespace TicketWaveAz.Api.Controllers
            [FromServices] IGetPaymentUseCase getPaymentUseCase, CancellationToken cancellationToken)
         {
             var result = await getPaymentUseCase.ExecuteAsync(paymentId, cancellationToken);
+
+            if (result.Success)
+            {
+                return Ok(result.Value);
+            }
+
+            return BadRequest(result.Errors);
+        }
+
+
+        [HttpPost("webhook")]
+        public async Task<IActionResult> Webhook(
+           [FromBody] WebhookEfiDto request,
+           [FromServices] IReceivedPaymentUseCase receivedPaymentUseCase, CancellationToken cancellationToken)
+        {
+            var result = await receivedPaymentUseCase.ExecuteAsync(request, cancellationToken);
 
             if (result.Success)
             {

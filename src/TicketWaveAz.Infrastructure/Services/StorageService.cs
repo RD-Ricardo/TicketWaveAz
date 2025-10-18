@@ -41,5 +41,17 @@ namespace TicketWaveAz.Infrastructure.Services
             
             return fileName;
         }
+
+        public async Task<string> UploadBytesAsync(string fileName, byte[] fileBytes, CancellationToken cancellationToken = default)
+        {
+            var blobClient = _blobContainerClient.GetBlobClient(fileName);
+
+            using (var stream = new MemoryStream(fileBytes))
+            {
+                await blobClient.UploadAsync(stream, true, cancellationToken);
+            }
+
+            return fileName;
+        }
     }
 }

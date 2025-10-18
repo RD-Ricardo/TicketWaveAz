@@ -27,6 +27,8 @@ namespace TicketWaveAz.Infrastructure
                 .WithScopedLifetime()
             );
 
+            services.AddScoped<IMessagePublisher, MessagePublisher>();
+
             return services;
         }
 

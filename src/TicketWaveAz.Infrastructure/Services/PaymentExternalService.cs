@@ -95,6 +95,8 @@ namespace TicketWaveAz.Infrastructure.Services
             var handler = new HttpClientHandler();
             handler.ClientCertificates.Add(certificate21!);
             handler.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+            handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, errors) => true;
+
 
             using var httpClient = new HttpClient(handler)
             {

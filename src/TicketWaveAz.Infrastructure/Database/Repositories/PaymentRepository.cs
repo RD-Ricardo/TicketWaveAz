@@ -18,6 +18,22 @@ namespace TicketWaveAz.Infrastructure.Database.Repositories
             await _container.CreateItemAsync(payment, cancellationToken: cancellationToken);
         }
 
+        public async Task<Payment?> GetByExternalIdAsync(string externalId, CancellationToken cancellationToken)
+        {
+            var query = new QueryDefinition("SELECT * FROM c WHERE c.ExternalId = @externalId")
+               .WithParameter("@externalId", externalId);
+
+            var iterator = _container.GetItemQueryIterator<Payment>(query);
+
+            while (iterator.HasMoreResults)
+            {
+                var response = await iterator.ReadNextAsync(cancellationToken);
+                return response.FirstOrDefault();
+            }
+
+            return null;
+        }
+
         public async Task<Payment?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
             var query = new QueryDefinition("SELECT * FROM c WHERE c.id = @id")
@@ -32,6 +48,11 @@ namespace TicketWaveAz.Infrastructure.Database.Repositories
             }
 
             return null;
+        }
+
+        public async Task UpdateAsync(Payment payment, CancellationToken cancellationToken)
+        {
+            await _container.ReplaceItemAsync(payment, payment.Id.ToString(), cancellationToken: cancellationToken);
         }
     }
 }
