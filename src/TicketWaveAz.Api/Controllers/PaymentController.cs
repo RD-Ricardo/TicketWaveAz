@@ -61,13 +61,16 @@ namespace TicketWaveAz.Api.Controllers
         {
             if (hmac == _secretKey)
             {
-                var result = await receivedPaymentUseCase.ExecuteAsync(request, cancellationToken);
+                if (request != null)
+                { 
+                    var result = await receivedPaymentUseCase.ExecuteAsync(request, cancellationToken);
 
-                var requestBody = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+                    var requestBody = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
 
-                _logger.LogInformation("Webhook processado com sucesso: {requestBody}", requestBody);
+                    _logger.LogInformation("Webhook processado com sucesso: {requestBody}", requestBody);
 
-                return Created("Webhook processado com sucesso.", requestBody);
+                    return Created("Webhook processado com sucesso.", requestBody);
+                }
             }
 
             return Ok();
